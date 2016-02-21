@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html ng-app="Andrello">
+	<head>
+		<meta charset="utf-8">
+		<title>Andrello - from Angular in Action</title>
+	</head>
+	<body ng-controller="AndrelloController as andrello">
+		<div class="navbar navbar-fixed-top navbar-default">
+			<a class="logo navbar-brand" href="#/">
+				<img src="resources/images/andrello.png" alt="Andrello Logo">
+			</a>
+			<div class="btn-group pull-right" ng-show="andrello.currentUser">
+				<a class="btn btn-danger" href="#/">
+					<span class="glyphicon glyhpicon-home"></span>
+				</a>
+				<a class="btn btn-danger" href="#/users">
+					<span class="glyphicon glyhpicon-user"></span>
+				</a>
+				<a class="btn btn-danger" href="#/dashboard">
+					<span class="glyphicon glyhpicon-signal"></span>
+				</a>
+			</div>
+		</div>
+		<div ng-view="">
+		</div>
+		<div class="modal">
+		</div>
+	</body>
+</html>
