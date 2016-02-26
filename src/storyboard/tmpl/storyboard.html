@@ -1,0 +1,42 @@
+<div class="list-area">
+	<div class="list-wrapper">
+		<ul class="list" ng-repeat="status in storyboard.statuses">
+			<h3 class="status">{{status.name}}</h3>
+			<hr/>
+			<li class="story" ng-repeat="story in storyboard.stories | filter: {status:status.name}"
+				ng-click="storyboard.setCurrentStory(story)">
+				<article>
+					<div>
+						<button type="button" class="close">×</button>
+						<p class="title">{{story.title}}</p>
+						</div>
+						<div class="type-bar {{story.type}}"></div>
+						<div>
+						<p>{{story.description}}</p>
+					</div>
+				</article>
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="details">
+	<h3>Card Details</h3>
+	<form name="storyboard.detailsForm">
+		<div class="form-group">
+			<div class="controls">
+				<label class="control-label" for="inputTitle">*Title</label>
+				<input type="text" id="inputTitle" name="inputTitle"
+				placeholder="Title" ng-model="storyboard.editedStory.title"
+				ng-required="true" ng-minlength="3" ng-maxlength="30"
+				class="form-control">
+				<select id="inputReporter" name="inputReporter"
+				ng-model="storyboard.editedStory.reporter" ng-required="true"
+				ng-options="user.id as user.name for user in storyboard.users"
+				class="form-control">
+					<option value="">Please select...</option>
+				</select>
+			</div>
+		</div>
+		<!-- ... -->
+	</form>
+</div>

@@ -3,19 +3,50 @@
 	'use strict';
 
 	var gulp = require('gulp');
-	var uglify = require('gulp-uglify');
-	var concat = require('gulp-concat');
-	var jshint = require('gulp-jshint');
-	var less = require('gulp-less');
-	var cssMinify = require('gulp-cssnano');
-	var prefix = require('gulp-autoprefixer');
-	var del = require('del');
+	var plugins = require('gulp-load-plugins')({pattern: ['gulp-*', 'gulp.*', 'del'] });
+
+	var app = 'src';
+	var paths =
+	{
+		scripts: app + '/**/*.js',
+		styles: app + '/**/*.less',
+		views:
+		{
+			main: app + '/index.html',
+			files: app + '/**/*.html'
+		}
+	};
 
 	gulp.task('scripts', scriptsTask);
 	gulp.task('lint', lintTask);
 	gulp.task('styles', stylesTask);
-
+	gulp.task('inject', injectTask);
+	gulp.task('wiredep',wiredepTask);
 	gulp.task('clean',cleanTask);
+
+	gulp.task('start:server',startServerTask);
+	gulp.task('start:client', startClientTask);
+	gulp.task('reload', reloadServerTask);
+	gulp.task('watch',watchTask);
+	gulp.task('start',
+		gulp.series(
+			gulp.parallel(
+				'start:server',
+				'start:client',
+				'watch'
+			)
+	));
+	gulp.task('default',
+		gulp.series(
+			gulp.parallel(
+				'lint',
+				'styles'
+			),
+			'wiredep',
+			'inject',
+			'start',
+			'watch'
+		));
 
 	function scriptsTask()
 	{
@@ -23,8 +54,8 @@
 			[
 				'src/**/*.js'
 			])
-			.pipe(concat('andrello.min.js'))
-			.pipe(uglify())
+			.pipe(plugins.concat('andrello.min.js'))
+			.pipe(plugins.uglify())
 			.pipe(gulp.dest('dist'));
 	}
 
@@ -34,22 +65,91 @@
 			[
 				'src/**/*.js'
 			])
-			.pipe(jshint())
-			.pipe(jshint.reporter('default'))
-			.pipe(jshint.reporter('fail'));
+			.pipe(plugins.jshint())
+			.pipe(plugins.jshint.reporter('default'))
+			.pipe(plugins.jshint.reporter('fail'));
 	}
 
 	function stylesTask()
 	{
 		return gulp.src('src/styles/andrello.less')
-			.pipe(less())
-			.pipe(cssMinify())
-			.pipe(prefix())
+			.pipe(plugins.less())
+
+			// .pipe(plugins.cssnano())
+			.pipe(plugins.autoprefixer())
 			.pipe(gulp.dest('dist'));
+	}
+
+	function injectTask()
+	{
+		var target = gulp.src(paths.views.main);
+		var sources = gulp.src([paths.scripts, 'dist/**/*.css'], {read:false,
+ allowEmpty:true});
+
+		return target
+			.pipe(plugins.inject(sources, {relative: true}))
+			.pipe(gulp.dest('src'));
+	}
+
+	function wiredepTask()
+	{
+		return gulp.src('./src/index.html')
+			.pipe(plugins.wiredep(
+			{
+				verbose: true
+			}))
+			.pipe(gulp.dest('./src'));
 	}
 
 	function cleanTask(done)
 	{
-		del(['dist'], done);
+		// del(['dist'], done);
+		plugins.del(['dist'], done);
+	}
+
+	function startServerTask(done)
+	{
+		/* return gulp.src(__filename)
+			.pipe(*/
+		plugins.connect.server(
+		{
+			root: ['src','.'],
+			livereload: true,
+
+			// Change this to '0.0.0.0' to access the server from outside.
+			port: 9000
+		}, done);// );
+	}
+
+	function reloadServerTask()
+	{
+		return gulp.src(__filename)
+			.pipe(plugins.connect.reload());
+	}
+
+	function startClientTask()
+	{
+		return gulp.src(__filename)
+			.pipe(plugins.open({app:'chrome',
+ uri:'http://localhost:9000'}));
+	}
+
+	function watchTask()
+	{
+		gulp.watch([paths.styles],
+			gulp.series(
+				'styles',
+				'reload'
+		));
+
+		gulp.watch(paths.views.files, reloadServerTask);
+
+		gulp.watch(paths.scripts,
+			gulp.series(
+				'lint',
+				'wiredep',
+				'inject',
+				'reload'
+		));
 	}
 })();
