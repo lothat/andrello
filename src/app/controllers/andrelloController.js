@@ -1,4 +1,4 @@
-(function()
+(function andrelloController()
 {
 	'use strict';
 
@@ -8,6 +8,12 @@
 
 	function AndrelloController()
 	{
-//		var andrello = this;
+		var andrello = this;
+
+		andrello.currentUser =
+		{
+			id: 0,
+			name: 'Andrew Loth'
+		};
 	}
 })();

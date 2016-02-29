@@ -1,38 +1,48 @@
-(function()
+(function gulpfile()
 {
 	'use strict';
 
 	var gulp = require('gulp');
-	var plugins = require('gulp-load-plugins')({pattern: ['gulp-*', 'gulp.*', 'del'] });
-
+	var plugins = require('gulp-load-plugins')({pattern: ['gulp-*', 'gulp.*', 'del', 'yargs'] });
+	var browserSync = require('browser-sync').create();
+	var noop = plugins.util.noop;
+	var args = plugins.yargs.argv;
+	var environ = args.env?args.env:'local';
+	var isLocal;
 	var app = 'src';
-	var paths =
-	{
-		scripts: app + '/**/*.js',
-		styles: app + '/**/*.less',
-		views:
-		{
-			main: app + '/index.html',
-			files: app + '/**/*.html'
-		}
-	};
+	var paths;
 
-	gulp.task('scripts', scriptsTask);
+	/*
+	 * Task Definitions
+	 */
+
+	// cleanup tasks
+	gulp.task('clean',cleanTask);
+	gulp.task('cleanAll',cleanAllTask);
+
+	// linting tasks
 	gulp.task('lint', lintTask);
+
+	// build tasks
+	gulp.task('scripts', scriptsTask);
 	gulp.task('styles', stylesTask);
 	gulp.task('inject', injectTask);
-	gulp.task('wiredep',wiredepTask);
-	gulp.task('clean',cleanTask);
+	gulp.task('build',
+		gulp.series(
+			'clean',
+			'lint',
+			gulp.parallel(
+				'scripts',
+				'inject'
+	)));
 
+	// development server run tasks
 	gulp.task('start:server',startServerTask);
-	gulp.task('start:client', startClientTask);
-	gulp.task('reload', reloadServerTask);
 	gulp.task('watch',watchTask);
 	gulp.task('start',
 		gulp.series(
 			gulp.parallel(
 				'start:server',
-				'start:client',
 				'watch'
 			)
 	));
@@ -42,114 +52,169 @@
 				'lint',
 				'styles'
 			),
-			'wiredep',
 			'inject',
-			'start',
-			'watch'
+			'start'
 		));
 
-	function scriptsTask()
+	// configuration variables
+	paths =
 	{
-		return gulp.src(
-			[
-				'src/**/*.js'
-			])
-			.pipe(plugins.concat('andrello.min.js'))
-			.pipe(plugins.uglify())
-			.pipe(gulp.dest('dist'));
+		scripts: app + '/**/*.js',
+		styles: app + '/**/*.less',
+		views:
+		{
+			main: app + '/index.html',
+			files: app + '/**/*.html'
+		},
+		dest:
+		{
+			'localhost': 'dev',
+			'localdev': 'dev',
+			'development': 'build',
+			'production': 'dist'
+		}
+	};
+
+	// validate and default environment
+	switch(environ)
+	{
+		case 'local':
+		{
+			isLocal = true;
+			environ = args.db==='dev'?'localdev':'localhost';
+			break;
+		}
+
+		case 'development':
+		case 'production':
+		{
+			isLocal = false;
+			break;
+		}
+
+		default:
+		{
+			isLocal = true;
+			environ = 'localhost';
+			break;
+		}
+	}
+
+	/*
+	 * Task Functions
+	 */
+
+	function cleanEnv(env)
+	{
+		return plugins.del([paths.dest[env]]);
+	}
+
+	function cleanTask()
+	{
+		return cleanEnv(environ);
+	}
+
+	function cleanAllTask()
+	{
+		// del returns a promose, so return a new promise that will resolve
+		// when all environments have been cleaned
+		return Promise.all(Object.keys(paths.dest).map(cleanEnv));
 	}
 
 	function lintTask()
 	{
 		return gulp.src(
 			[
-				'src/**/*.js'
+				paths.scripts
 			])
 			.pipe(plugins.jshint())
+			.pipe(plugins.jscs())
+			.pipe(plugins.jscsStylish.combineWithHintResults())
 			.pipe(plugins.jshint.reporter('default'))
 			.pipe(plugins.jshint.reporter('fail'));
+	}
+
+	function scriptsTask()
+	{
+		return gulp.src([paths.scripts])
+			.pipe(isLocal?noop():plugins.concat('andrello.min.js'))
+			.pipe(isLocal?noop():plugins.uglify())
+			.pipe(gulp.dest(paths.dest[environ]));
 	}
 
 	function stylesTask()
 	{
 		return gulp.src('src/styles/andrello.less')
 			.pipe(plugins.less())
-
-			// .pipe(plugins.cssnano())
+			.pipe(isLocal?noop():plugins.cssnano())
 			.pipe(plugins.autoprefixer())
-			.pipe(gulp.dest('dist'));
+			.pipe(gulp.dest(paths.dest[environ]));
 	}
 
 	function injectTask()
 	{
-		var target = gulp.src(paths.views.main);
-		var sources = gulp.src([paths.scripts, 'dist/**/*.css'], {read:false,
- allowEmpty:true});
+		var srcOptions =
+		{
+			read:false,
+			allowEmpty: true,
+			cwd: app
+		};
+		var target = gulp.src('index.html', {cwd:app});
+		var sources = gulp.src([ '**/*.js' /*paths.scripts */], srcOptions);
+		var cssSources;
+
+		srcOptions.cwd = paths.dest[environ];
+		cssSources = gulp.src('andrello.css', srcOptions);
 
 		return target
-			.pipe(plugins.inject(sources, {relative: true}))
-			.pipe(gulp.dest('src'));
-	}
-
-	function wiredepTask()
-	{
-		return gulp.src('./src/index.html')
+			.pipe(plugins.inject(sources))
+			.pipe(plugins.inject(cssSources))
 			.pipe(plugins.wiredep(
 			{
-				verbose: true
+				verbose: true,
+				ignorePath: '..'
 			}))
-			.pipe(gulp.dest('./src'));
-	}
-
-	function cleanTask(done)
-	{
-		// del(['dist'], done);
-		plugins.del(['dist'], done);
+			.pipe(gulp.dest(paths.dest[environ]));
 	}
 
 	function startServerTask(done)
 	{
-		/* return gulp.src(__filename)
-			.pipe(*/
-		plugins.connect.server(
-		{
-			root: ['src','.'],
-			livereload: true,
-
-			// Change this to '0.0.0.0' to access the server from outside.
-			port: 9000
-		}, done);// );
-	}
-
-	function reloadServerTask()
-	{
-		return gulp.src(__filename)
-			.pipe(plugins.connect.reload());
-	}
-
-	function startClientTask()
-	{
-		return gulp.src(__filename)
-			.pipe(plugins.open({app:'chrome',
- uri:'http://localhost:9000'}));
+		browserSync.init(
+			{
+				server:
+				{
+					baseDir: [ paths.dest[environ], app],
+					routes:
+					{
+						'/bower_components': 'bower_components'
+					}
+				},
+				port: 9000,
+				watchOptions:
+				{
+					ignoreInitial: true
+				},
+				files: ['src/**/*', '!src/**/*.less', '!src/**/*.css', '!'+paths.views.main, paths.dest[environ]],
+				open: 'local',
+				reloadOnRestart: true,
+				reloadDelay: 500,
+				reloadDebounce: 2000
+			},
+			done);
 	}
 
 	function watchTask()
 	{
-		gulp.watch([paths.styles],
-			gulp.series(
-				'styles',
-				'reload'
-		));
+		gulp.watch([paths.views.main],
+			gulp.series('inject'));
 
-		gulp.watch(paths.views.files, reloadServerTask);
+		gulp.watch([paths.styles],
+			gulp.series('styles'));
 
 		gulp.watch(paths.scripts,
 			gulp.series(
 				'lint',
-				'wiredep',
-				'inject',
-				'reload'
+				'inject'
 		));
 	}
 })();

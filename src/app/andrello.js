@@ -1,4 +1,4 @@
-(function()
+(function andrello()
 {
 	'use strict';
 
@@ -21,31 +21,31 @@
 		$routeProvider
 			.when('/',
 			{
-				templateUrl: 'src/storyboard/tmpl/storyboard.html',
+				templateUrl: '/storyboard/tmpl/storyboard.html',
 				controller: 'StoryboardController',
 				controllerAs: 'storyboard'
 			})
 			.when('/dashboard',
 			{
-				templateUrl: 'src/dashboard/tmpl/dashboard.html',
+				templateUrl: '/dashboard/tmpl/dashboard.html',
 				controller: 'DashboardController',
 				controllerAs: 'dashboard'
 			})
 			.when('/users',
 			{
-				templateUrl: 'src/users/tmpl/users.html',
+				templateUrl: '/users/tmpl/users.html',
 				controller: 'UsersController',
 				controllerAs: 'users'
 			})
 			.when('/users/:userId',
 			{
-				templateUrl: 'src/users/tmpl/user.html',
+				templateUrl: '/users/tmpl/user.html',
 				controller: 'UserController',
 				controllerAs: 'user'
 			})
 			.when('/login',
 			{
-				templateUrl: 'src/login/tmpl/login.html',
+				templateUrl: '/login/tmpl/login.html',
 				controller: 'LoginController',
 				controllerAs: 'login'
 			})

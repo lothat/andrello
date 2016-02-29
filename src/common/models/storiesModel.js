@@ -1,4 +1,4 @@
-(function()
+(function storiesModel()
 {
 	'use strict';
 
@@ -8,6 +8,5 @@
 
 	function storiesModel()
 	{
-		
 	}
 })();
