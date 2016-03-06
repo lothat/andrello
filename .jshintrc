@@ -17,6 +17,8 @@
 	"browser": true,
 	"node": true,
 	"globals": {
-		"angular": false
+		"angular": false,
+		"jstz": false,
+		"moment": false
 	}
 }
