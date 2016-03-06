@@ -6,9 +6,9 @@
 		.module('Andrello.storyboard')
 		.controller('StoryboardController', StoryboardController);
 
-	StoryboardController.$inject = ['$scope'];
+	StoryboardController.$inject = ['StoriesModel', 'STORY_TYPES', 'STORY_STATUSES'];
 
-	function StoryboardController($scope)
+	function StoryboardController(StoriesModel, STORY_TYPES, STORY_STATUSES)
 	{
 		var storyboard = this;
 
@@ -16,11 +16,16 @@
 		storyboard.editedStory = {};
 		storyboard.setCurrentStory = setCurrentStory;
 		storyboard.createStory = createStory;
+		storyboard.getStories = getStories;
 		storyboard.updateStory = updateStory;
 		storyboard.updateCancel = updateCancel;
 		storyboard.deleteStory = deleteStory;
 		storyboard.resetForm = resetForm;
 
+		storyboard.statuses = STORY_STATUSES;
+		storyboard.types = STORY_TYPES;
+
+		/*
 		storyboard.stories =
 		[
 			{
@@ -44,18 +49,8 @@
 				'type': 'Enhancement'
 			}
 		];
-		storyboard.statuses = [
-			{name: 'To Do'},
-			{name: 'In Progress'},
-			{name: 'Code Review'},
-			{name: 'QA Review'},
-			{name: 'Verified'}
-		];
-		storyboard.types =
-		[
-			{name: 'Spike'},
-			{name: 'Enhancement'}
-		];
+		*/
+
 		storyboard.users =
 		[
 			{
@@ -67,6 +62,8 @@
 				name: 'Lukas Rubbelke'
 			}
 		];
+
+		storyboard.getStories();
 
 		function setCurrentStory(story)
 		{
@@ -84,8 +81,34 @@
 			storyboard.resetForm();
 		}
 
+		function getStories()
+		{
+			StoriesModel.all()
+				.then(function successCallback(result)
+				{
+					storyboard.stories = (result!==null)?result:{};
+
+					console.log(result.data);
+				},
+				function errorCallback(reason)
+				{
+					console.log(reason);
+				});
+		}
+
 		function updateStory()
 		{
+			StoriesModel.update(storyboard.editedStory).then(
+				function successCallback(result)
+				{
+					storyboard.getStories();
+					storyboard.resetForm();
+				},
+				function errorCallback(reason)
+				{
+					console.log(reason);
+				});
+			/*
 			var fields =
 			[
 				'title',
@@ -103,6 +126,7 @@
 			});
 
 			storyboard.resetForm();
+			*/
 		}
 
 		function updateCancel()

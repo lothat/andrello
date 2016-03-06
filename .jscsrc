@@ -35,7 +35,7 @@
 	"requirePaddingNewLinesAfterBlocks": {"allExcept": ["inCallExpressions", "inNewExpressions", "inArrayExpressions", "inProperties"]},
 	"requirePaddingNewLinesAfterUseStrict": true,
 	"requirePaddingNewLinesBeforeExport": true,
-	"requirePaddingNewlinesBeforeKeywords": true,
+	"requirePaddingNewlinesBeforeKeywords": ["do","for","if","switch","try","while","with","return","function"],
 	"requirePaddingNewLinesBeforeLineComments": { "allExcept": "firstAfterCurly" },
 	"requireParenthesesAroundIIFE": true,
 	"requireSemicolons": true,

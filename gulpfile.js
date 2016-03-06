@@ -160,7 +160,7 @@
 			cwd: app
 		};
 		var target = gulp.src('index.html', {cwd:app});
-		var sources = gulp.src([ '**/*.js' /*paths.scripts */], srcOptions);
+		var sources = gulp.src([ '**/*.js'], srcOptions);
 		var cssSources;
 
 		srcOptions.cwd = paths.dest[environ];
