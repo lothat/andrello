@@ -6,9 +6,9 @@
 		.module('Andrello.storyboard')
 		.controller('StoryboardController', StoryboardController);
 
-	StoryboardController.$inject = ['StoriesModel', 'STORY_TYPES', 'STORY_STATUSES'];
+	StoryboardController.$inject = ['$log', 'StoriesModel', 'STORY_TYPES', 'STORY_STATUSES'];
 
-	function StoryboardController(StoriesModel, STORY_TYPES, STORY_STATUSES)
+	function StoryboardController($log, StoriesModel, STORY_TYPES, STORY_STATUSES)
 	{
 		var storyboard = this;
 
@@ -88,11 +88,11 @@
 				{
 					storyboard.stories = (result!==null)?result:{};
 
-					console.log(result.data);
+					$log.debug('RESULT', result);
 				},
 				function errorCallback(reason)
 				{
-					console.log(reason);
+					$log.debug('REASON', reason);
 				});
 		}
 

@@ -6,7 +6,7 @@
 		.module('Andrello.common')
 		.factory('LoadingService', loadingService);
 
-	loadingService.$inject = ['rootScope'];
+	loadingService.$inject = ['$rootScope'];
 
 	function loadingService($rootScope)
 	{

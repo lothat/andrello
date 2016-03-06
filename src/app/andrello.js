@@ -16,7 +16,9 @@
 		.module('Andrello')
 		.config(andrelloConfig);
 
-	function andrelloConfig($routeProvider)
+	andrelloConfig.$inject = ['$routeProvider', '$httpProvider', '$provide'];
+
+	function andrelloConfig($routeProvider, $httpProvider, $provide)
 	{
 		$routeProvider
 			.when('/',
@@ -53,5 +55,36 @@
 			{
 				redirectTo: '/'
 			});
+
+		// Interceptor
+		$httpProvider.interceptors.push('loadingInterceptor');
+
+		// Decorator
+		$provide.decorator('$log', logDecorator);
+
+		function logDecorator($delegate)
+		{
+			var debugFn = $delegate.debug;
+
+			$delegate.debug = debug;
+
+			return $delegate;
+
+			function debug()
+			{
+				// Prepend timestamp
+				arguments[0] = timeStamp()+' : '+arguments[0];
+
+				// Call the original with output prepended with formatted timestamp
+				debugFn.apply(null, arguments);
+			}
+
+			function timeStamp()
+			{
+				var tz = jstz.determine().name();
+
+				return moment.tz(tz).format('YYYY/MM/DD HH:mm:ss.SSS z');
+			}
+		}
 	}
 })();
