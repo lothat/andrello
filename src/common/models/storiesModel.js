@@ -10,7 +10,7 @@
 
 	function StoriesModel($http, $q, EndpointConfigService/*, UtilsService*/)
 	{
-		var MODEL = '/stories/';
+		var MODEL = 'stories/';
 		var service =
 		{
 			all: all,
@@ -46,31 +46,44 @@
 
 		function fetch(storyid)
 		{
-			return $http.get(
-				EndpointConfigService.getUrlForId(MODEL +
-					EndpointConfigService.getCurrentFormat(), storyid));
+			var url = EndpointConfigService.getUrlForId(MODEL +
+					EndpointConfigService.getCurrentFormat(), storyid);
+
+			console.log('GET ', url);
+
+			return $http.get(url);
 		}
 
 		function create(story)
 		{
-			return $http.post(
-				EndpointConfigService.getUrl(MODEL +
-					EndpointConfigService.getCurrentFormat()), story);
+			var url = EndpointConfigService.getUrl(MODEL +
+					EndpointConfigService.getCurrentFormat());
+
+			console.log('POST ', url);
+			console.log(story);
+
+			return $http.post(url, story);
 		}
 
 		function update(storyid, story)
 		{
-			return $http.put(
-				EndpointConfigService.getUrlForId(MODEL +
-					EndpointConfigService.getCurrentFormat(), storyid),
-				story);
+			var url = EndpointConfigService.getUrlForId(MODEL +
+					EndpointConfigService.getCurrentFormat(), storyid);
+
+			console.log('PUT ', url);
+			console.log(story);
+
+			return $http.put(url, story);
 		}
 
 		function destroy(storyid)
 		{
-			return $http.delete(
-				EndpointConfigService.getUrlForId(MODEL +
-					EndpointConfigService.getCurrentFormat(), storyid));
+			var url = EndpointConfigService.getUrlForId(MODEL +
+					EndpointConfigService.getCurrentFormat(), storyid);
+
+			console.log('DELETE ', url);
+
+			return $http.delete(url);
 		}
 	}
 })();

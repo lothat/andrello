@@ -179,6 +179,36 @@
 
 	function startServerTask(done)
 	{
+		var browser = 'default';
+
+		// TODO - allow a list of browsers to open
+		switch (args.browser)
+		{
+			case 'chrome':
+			{
+				browser = 'Chrome';
+				break;
+			}
+
+			case 'ie':
+			{
+				browser = 'Explorer';
+				break;
+			}
+
+			case 'edge':
+			{
+				browser = 'Edge';
+				break;
+			}
+
+			case 'firefox':
+			{
+				browser = 'Firefox';
+				break;
+			}
+		}
+
 		browserSync.init(
 			{
 				server:
@@ -196,6 +226,7 @@
 				},
 				files: ['src/**/*', '!src/**/*.less', '!src/**/*.css', '!'+paths.views.main, paths.dest[environ]],
 				open: 'local',
+				browser: browser,
 				reloadOnRestart: true,
 				reloadDelay: 500,
 				reloadDebounce: 2000

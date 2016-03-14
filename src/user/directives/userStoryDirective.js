@@ -6,6 +6,8 @@
 		.module('Andrello.user')
 		.directive('userstory', userstory);
 
+	userstory.$inject = [];
+
 	function userstory()
 	{
 		var directive =

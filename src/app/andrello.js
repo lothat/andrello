@@ -9,7 +9,8 @@
 				'ngAnimate',
 				'ngMessages',
 				'Andrello.common',
-				'Andrello.storyboard'
+				'Andrello.storyboard',
+				'Andrello.user'
 			]);
 
 	angular
