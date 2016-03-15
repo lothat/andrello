@@ -12,6 +12,7 @@
 	{
 		var storyboard = this;
 
+		storyboard.currentStoryId = null;
 		storyboard.currentStory = null;
 		storyboard.editedStory = {};
 		storyboard.setCurrentStory = setCurrentStory;
@@ -19,8 +20,10 @@
 		storyboard.getStories = getStories;
 		storyboard.updateStory = updateStory;
 		storyboard.updateCancel = updateCancel;
-		storyboard.deleteStory = deleteStory;
+
+		// storyboard.deleteStory = deleteStory;
 		storyboard.resetForm = resetForm;
+		storyboard.isEmptyStatus = isEmptyStatus;
 
 		// methods for drag-and-drop
 		storyboard.insertAdjacent = insertAdjacent;
@@ -74,18 +77,33 @@
 
 		function setCurrentStory(story)
 		{
+			storyboard.currentStoryId = story.id;
 			storyboard.currentStory = story;
 			storyboard.editedStory = angular.copy(storyboard.currentStory);
 		}
 
 		function createStory()
 		{
+			/*
 			var newStory = angular.copy(storyboard.editedStory);
 
 			newStory.id = newID();
 
 			storyboard.stories.push(newStory);
 			storyboard.resetForm();
+			*/
+			StoriesModel.create(storyboard.editedStory)
+				.then(
+				function successCallback(result)
+				{
+					storyboard.getStories();
+					storyboard.resetForm();
+					$log.debug('RESULT', result);
+				},
+				function errorCallback(reason)
+				{
+					$log.debug('REASON', reason);
+				});
 		}
 
 		function getStories()
@@ -105,7 +123,25 @@
 
 		function updateStory()
 		{
-			StoriesModel.update(storyboard.editedStory).then(
+			var fields =
+			[
+				'title',
+				'description',
+				'criteria',
+				'status',
+				'type',
+				'reporter',
+				'assignee'
+			];
+
+			fields.forEach(function updateField(field)
+			{
+				storyboard.currentStory[field] = storyboard.editedStory[field];
+			});
+
+			StoriesModel.update(
+				storyboard.currentStoryId,
+				storyboard.editedStory).then(
 				function successCallback(result)
 				{
 					storyboard.getStories();
@@ -113,7 +149,7 @@
 				},
 				function errorCallback(reason)
 				{
-					console.log(reason);
+					$log.debug('REASON', reason);
 				});
 		}
 
@@ -122,6 +158,7 @@
 			storyboard.resetForm();
 		}
 
+		/*
 		function deleteStory(storyId)
 		{
 			storyboard.stories = storyboard.stories.filter(function findStory(story)
@@ -130,6 +167,7 @@
 			});
 			storyboard.resetForm();
 		}
+		*/
 
 		function storyDeleted()
 		{
@@ -140,9 +178,30 @@
 		function resetForm()
 		{
 			storyboard.currentStory = null;
+			storyboard.currentStoryId = null;
 			storyboard.editedStory = {};
 			storyboard.detailsForm.$setPristine();
 			storyboard.detailsForm.$setUntouched();
+		}
+
+		function isEmptyStatus(status)
+		{
+			var empty = true;
+
+			if (storyboard.stories)
+			{
+				storyboard.stories.forEach(checkStatus);
+			}
+
+			return empty;
+
+			function checkStatus(story)
+			{
+				if (story.status === status)
+				{
+					empty = false;
+				}
+			}
 		}
 
 		function insertAdjacent(target, story, insertBefore)
@@ -173,12 +232,15 @@
 				}
 
 				storyboard.stories.splice(toIdx, 0, story);
+
+				story.status = target.status;
 			}
 		}
 
 		function finalizeDrop(story)
 		{
-			StoriesModel.update(story.id, story).then(
+			StoriesModel.update(story.id, story)
+				.then(
 				function successCallback(result)
 				{
 					$log.debug('RESULT', result);
@@ -196,9 +258,11 @@
 
 		// temporary utility function to mock up new IDs.
 		// IDs would normally be generated on insert into the database
+		/*
 		function newID()
 		{
 			return '_'+Math.random().toString(36).substr(2, 9);
 		}
+		*/
 	}
 })();

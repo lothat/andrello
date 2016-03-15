@@ -38,13 +38,13 @@
 		dropContainer.handleDrop = handleDrop;
 		dropContainer.updateMimeTypes = updateMimeTypes;
 
-		function init(element, scope, callbacks)
+		function init(elem, scope, callbacks)
 		{
-			dropContainer.element = element;
+			dropContainer.elem = elem;
 			dropContainer.scope = scope;
 			dropContainer.callbacks = callbacks;
 			dropContainer.accepts = ['text/x-drag-and-drop'];
-			dropContainer.element.addClass('drop-container');
+			dropContainer.elem.addClass('drop-container');
 		}
 
 		function addDropTarget(anchor, dropTarget)
@@ -110,13 +110,13 @@
 			{
 				if (prevTarget)
 				{
-					dropContainer.element.removeClass('drop-container-active-'+prevAnchor);
+					dropContainer.elem.removeClass('drop-container-active-'+prevAnchor);
 					prevTarget.handleDragLeave(eventData);
 				}
 
 				if (activeTarget)
 				{
-					dropContainer.element.addClass('drop-container-active-'+activeAnchor);
+					dropContainer.elem.addClass('drop-container-active-'+activeAnchor);
 					activeTarget.handleDragEnter(eventData);
 				}
 			}
@@ -125,8 +125,8 @@
 
 			function updateTarget(dropTarget, anchor)
 			{
-				var width = dropContainer.element[0].offsetWidth;
-				var height = dropContainer.element[0].offsetHeight;
+				var width = dropContainer.elem[0].offsetWidth;
+				var height = dropContainer.elem[0].offsetHeight;
 				var anchorX = width/2;
 				var anchorY = height/2;
 				var distanceSq;
@@ -143,12 +143,12 @@
 
 				if (anchor.indexOf('bottom') >= 0)
 				{
-					anchorX = 0;
+					anchorX = width;
 				}
 
 				if (anchor.indexOf('right') >= 0)
 				{
-					anchorY = 0;
+					anchorY = height;
 				}
 
 				distanceSq = Math.pow(anchorX - evt.offsetX, 2) +
@@ -184,8 +184,8 @@
 
 			eventData = dropContainer.updateDragTarget(evt);
 
-			dropContainer.element.children().css({'ponter-events':'none'});
-			dropContainer.element.addClass('drop-container-active');
+			dropContainer.elem.children().css({'ponter-events':'none'});
+			dropContainer.elem.addClass('drop-container-active');
 
 			if (dropContainer.callbacks.onDragEnter)
 			{
@@ -195,8 +195,8 @@
 
 		function handleDragEnd(evt)
 		{
-			dropContainer.element.children().css({'ponter-events':null});
-			dropContainer.element.removeClass('drop-container-active');
+			dropContainer.elem.children().css({'ponter-events':null});
+			dropContainer.elem.removeClass('drop-container-active');
 		}
 
 		function handleDragOver(evt)
@@ -240,20 +240,10 @@
 				evt = evt.originalEvent;
 			}
 
-			if (!dropContainer.accepts ||
-				dropContainer.accepts.indexOf($dragging.getType()) >= 0)
-			{
-				evt.preventDefault();
-			}
-			else
-			{
-				return;
-			}
-
 			eventData = dropContainer.updateDragTarget(evt, true);
 
-			dropContainer.element.children().css({'ponter-events':null});
-			dropContainer.element.removeClass('drop-container-active');
+			dropContainer.elem.children().css({'ponter-events':null});
+			dropContainer.elem.removeClass('drop-container-active');
 
 			if (dropContainer.callbacks.onDragLeave)
 			{

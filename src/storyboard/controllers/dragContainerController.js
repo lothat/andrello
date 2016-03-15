@@ -18,9 +18,9 @@
 		dragContainer.updateDragData = updateDragData;
 		dragContainer.updateDragType = updateDragType;
 
-		function init(element)
+		function init(elem)
 		{
-			dragContainer.element = element;
+			dragContainer.elem = elem;
 		}
 
 		function handleDragStart(evt)
@@ -33,7 +33,7 @@
 			evt.dataTransfer.dropEffect = 'move';
 			evt.dataTransfer.effectAllowed = 'move';
 
-			dragContainer.element.addClass('drag-container-active');
+			dragContainer.elem.addClass('drag-container-active');
 			dragContainer.dragging = true;
 
 			$dragging.setData(dragContainer.data);
@@ -47,7 +47,10 @@
 				evt = evt.originalEvent;
 			}
 
-			dragContainer.element.removeClass('drag-container-active');
+			angular.element(evt.target)
+				.removeClass('drag-active');
+
+			dragContainer.elem.removeClass('drag-container-active');
 			dragContainer.dragging = false;
 
 			$dragging.setData(null);

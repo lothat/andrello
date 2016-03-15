@@ -6,9 +6,7 @@
 		.module('Andrello.storyboard')
 		.controller('DropTargetController', DropTargetController);
 
-	DropTargetController.$inject = ['$dragging'];
-
-	function DropTargetController($dragging)
+	function DropTargetController()
 	{
 		var dropTarget = this;
 

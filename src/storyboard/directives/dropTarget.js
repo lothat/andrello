@@ -37,7 +37,7 @@
 				onDrop: $parse(attrs.onDrop)
 			};
 
-			element.addClass('drop-target drop-target-anchor-'+anchor);
+			element.addClass('drop-target drop-target-'+anchor);
 
 			dropTarget.init(element, scope, callbacks);
 			dropContainer.addDropTarget(anchor, dropTarget);

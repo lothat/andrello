@@ -31,7 +31,7 @@
 			var callbacks =
 			{
 				onDragEnter: $parse(attrs.onDragEnter),
-				onDragOverLeave: $parse(attrs.onDragOverLeave),
+				onDragOver: $parse(attrs.onDragOver),
 				onDragLeave: $parse(attrs.onDragLeave),
 				onDrop: $parse(attrs.onDrop)
 			};
@@ -43,7 +43,8 @@
 			element.on('dragleave', handleDragLeave);
 			element.on('drop', handleDrop);
 
-			scope.$watch(attrs.accepts, dropContainer.updateMimeTypes.bind(dropContainer));
+			scope.$watch(attrs.accepts,
+				dropContainer.updateMimeTypes.bind(dropContainer));
 
 			$document.on('dragend', dragEnd);
 
